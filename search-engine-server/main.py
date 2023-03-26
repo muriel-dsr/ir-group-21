@@ -16,7 +16,6 @@ def home_route():
 @route_cors(allow_origin="*")
 async def data():
     query_string = request.query_string.decode("utf-8")
-    print(f'query: {query_string}')
 
     # Need to add code here to process query and determine results
 

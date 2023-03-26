@@ -279,3 +279,4 @@ dist
 
 # Project files
 .DS_Store
+*.pkl
