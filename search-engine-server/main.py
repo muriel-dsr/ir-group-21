@@ -5,11 +5,13 @@ import json
 # Create engine
 app = Quart(__name__)
 
+
 #  Add a test route - for debug purposes
 @app.route('/test')
 @route_cors(allow_origin="*")
 def home_route():
     return {"test": "again"}
+
 
 # Add a route which accepts a user query and returns a ranked set of results
 @app.route('/data')

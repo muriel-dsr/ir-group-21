@@ -2,7 +2,6 @@ from db.services_pymongo import documents
 from bson.objectid import ObjectId
 import pandas as pd
 from pandas.core.frame import DataFrame
-from db.controllers_tdmatrix import update_clinical_td_matrix
 
 
 class Document:
@@ -21,6 +20,8 @@ class Document:
     domain: str | None - the url domain for the document
 
     description: str | None - a brief description of the document for client / ui display
+
+    raw_text: str | None - all text in the xml document without tags
 
     links_outgoing: int - number of links contained in the document (measure of authority)
 
@@ -66,6 +67,7 @@ class Document:
         self.url: str = ""
         self.domain: str | None = None
         self.description: str | None = None
+        self.raw_text: str | None = None
 
         # Document indexing / relevance measures
         self.links_outgoing: int = 0
@@ -99,6 +101,7 @@ class Document:
             "url": self.url,
             "domain": self.domain,
             "description": self.description,
+            "raw_text": self.raw_text,
 
             "links_outgoing": self.links_outgoing,
             "references": self.references,
@@ -154,8 +157,6 @@ class Document:
             return False
         if self._id and self.term_frequencies:
             self.create_term_matrix()
-        if not self.term_matrix.empty:
-            update_clinical_td_matrix(self.term_matrix)
 
         return True
 

@@ -1,7 +1,9 @@
 from bs4 import BeautifulSoup
 from db.models_document import Document
+from db.services_pymongo import documents
 from textanalyser import list_words
 import re
+from bson import ObjectId
 
 
 def get_soup_text(soup: BeautifulSoup, tag: str):
@@ -58,9 +60,25 @@ def process_clinical_trial(path: str):
     else:
         data['description'] = None
     data['term_frequencies'] = list_words(soup.text)['all']
+    data['raw_text'] = soup.text
 
     doc = Document(data)
 
     doc.create_document()
 
     return doc
+
+
+def get_documents_for_matrix(existing_docs: list, limit: int = 10):
+    """
+    Takes a list of document ids that already exist in the matrix and the number of documents to return. Returns list
+    of documents.
+
+    This function only returns documents not in the original list.
+
+    :param existing_docs: list
+    :param limit: int
+    :return: documents
+    """
+    ids = [ObjectId(i) for i in existing_docs]
+    return documents.find({"_id": {"$nin": ids}}, {'term_matrix': 1}).limit(limit)

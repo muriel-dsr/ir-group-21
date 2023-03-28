@@ -78,4 +78,3 @@ class TermDocumentMatrix:
         except Exception as e:
             print(f'Error: failed to add new document to matrix', e)
             return False
-
