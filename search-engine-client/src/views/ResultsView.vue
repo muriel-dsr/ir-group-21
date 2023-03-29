@@ -5,8 +5,11 @@
     <v-row>
       <v-col cols="9">
           <div v-for="result in results" :key="result._id">
-            <result-card :id="result._id" :title=result.title :url=result.url />
-            <p>Clicks: {{ result.clicks }}</p>
+            <result-card :id="result._id"
+                         :title=result.title
+                         :url=result.url
+                         :description="result.description" />
+<!--            <p>Clicks: {{ result.clicks }}</p>-->
           </div>
       </v-col>
       <v-col cols="3">

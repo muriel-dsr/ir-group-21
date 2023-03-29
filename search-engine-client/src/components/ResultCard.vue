@@ -1,7 +1,8 @@
 <template>
-  <v-card class="ma-2" @click.prevent="goToURL">
+  <v-card class="ma-2" @click.prevent="goToURL" flat>
+    <a :href="url" style="font-size: '8px'">{{ url }}</a>
     <h2>{{ title }}</h2>
-    <p>{{ url }}</p>
+    <p>{{ description.substring(0, 250)}}...</p>
   </v-card>
 </template>
 <script lang="ts">
@@ -14,6 +15,7 @@
       id: String,
       url: String,
       title: String,
+      description: String
     },
     data: () => ({
     }),

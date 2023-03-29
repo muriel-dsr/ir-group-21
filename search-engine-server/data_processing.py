@@ -47,6 +47,7 @@ def calculate_dt_matrix():
     for index, doc in enumerate(docs):
         matrix = pd.concat([matrix, doc.term_matrix], join='outer')
         if index % 20 == 0 or index == len(docs) - 1:
+            matrix = matrix.fillna(0.0)
             tdm.matrix = pd.concat([tdm.matrix, matrix])
             matrix = pd.DataFrame()
 

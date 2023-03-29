@@ -82,3 +82,14 @@ def get_documents_for_matrix(existing_docs: list, limit: int = 10):
     """
     ids = [ObjectId(i) for i in existing_docs]
     return documents.find({"_id": {"$nin": ids}}, {'term_matrix': 1}).limit(limit)
+
+
+async def get_documents_for_client(ids: list | None = None):
+    if ids is not None and len(ids) > 0:
+        _ids = [ObjectId(i) for i in ids]
+        docs =  documents.find({"_id": {"$in": _ids}}, {'title': 1, 'url': 1, 'description': 1})
+    else:
+        docs = documents.find({}).limit(10)
+
+    return [Document(doc).info_client() for doc in docs]
+

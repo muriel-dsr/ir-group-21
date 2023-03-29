@@ -134,7 +134,7 @@ class Document:
         :return: dict
         """
         return {
-            "_id": self._id,
+            "_id": str(self._id),
             "title": self.title,
             "url": self.url,
             "description": self.description
