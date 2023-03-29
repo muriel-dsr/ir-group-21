@@ -4,6 +4,27 @@ import pandas as pd
 from datetime import datetime as dt
 import datetime
 
+'''Document ids with relevant judgment'''
+
+def judgement():
+    """
+    Load the .txt file that contain the relevance judgement, then split the data into columns.
+    Choose the index of the column that contains the document ids.
+    set() lists the unique values.
+
+    :return: all the document id with relevance judgement
+    """
+    with open('qrels2021.txt', 'r') as file:
+
+        unique_values = set()
+
+        for line in file:
+            columns = line.split()
+            document_id = columns[2] # index number of column with doc ids
+            unique_values.add(document_id)
+
+    return unique_values
+
 
 def process_corpus(directory: str):
     """
@@ -18,16 +39,28 @@ def process_corpus(directory: str):
     """
     if not os.path.exists(directory):
         return
-    # get all documents in the dataset
-    docs = list()
-    for dir_path, _, filenames in os.walk(directory):
-        for name in filenames:
-            path = os.path.join(dir_path, name)
-            if path.split('.')[-1] == 'xml':
-                docs.append(path)
+
+    unique_values = judgement()
+    xml_files = []
+    filtered_files = []
+
+    # Get all the documents stored in multiple sub-folders in the directory
+    for subdir, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith('.xml'):
+                file_path = os.path.join(subdir, file)
+                xml_files.append(file_path)
+
+
+    # Filter through the documents to get xml files with relevance judgements
+    for file_path in xml_files:
+        doc_id = file_path.split('/')[-1][:-4]
+        if doc_id in unique_values:
+            filtered_files.append(file_path)
+
     # process documents
-    for index, doc in enumerate(docs):
-        print(f'processing {index} / {len(docs)} || {round(100 / len(docs) * index)}% || doc name: {doc}')
+    for index, doc in enumerate(filtered_files):
+        print(f'processing {index} / {len(filtered_files)} || {round(100 / len(filtered_files) * index)}% || doc name: {doc}')
         process_clinical_trial(doc)
     print('corpus processing completed')
 
@@ -62,7 +95,7 @@ def calculate_dt_matrix():
 # Run this file as standalone to process the dataset.
 if __name__ == '__main__':
     # Add full path of the directory (folder) containing the documents to the variable path.
-    directory_path = ""
+    directory_path = "/Users/muriel/Library/CloudStorage/OneDrive-Personal/Python_projects/MSc_DSAI/Information Retrieval/2021 Clinical Trials Track/Clinical_trials_2021"
     process_corpus(directory_path)
     for i in range(500):
         calculate_dt_matrix()
