@@ -27,7 +27,7 @@ class TermDocumentMatrix:
     def __init__(self, doc: dict | None = None):
         self._id: ObjectId | str | None = None
         self.corpus_name: str | None = None
-        self.matrix: DataFrame | str | None = None
+        self.matrix: DataFrame | str | None = pd.DataFrame()
 
         # If document exists assign each value pair to the respective value pair for class instance
         if doc:
