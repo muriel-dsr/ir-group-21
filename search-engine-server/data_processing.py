@@ -1,10 +1,14 @@
-import os
-from db import process_clinical_trial, Document, get_clinical_td_matrix, get_documents_for_matrix
-import pandas as pd
 from datetime import datetime as dt
+from db import process_clinical_trial, Document, get_clinical_td_matrix, get_documents_for_matrix, process_query
+from db import create_all_indexes
 import datetime
+import os
+import pandas as pd
+import pathlib
+
 
 '''Document ids with relevant judgment'''
+
 
 def judgement():
     """
@@ -20,7 +24,7 @@ def judgement():
 
         for line in file:
             columns = line.split()
-            document_id = columns[2] # index number of column with doc ids
+            document_id = columns[2]  # index number of column with doc ids
             unique_values.add(document_id)
 
     return unique_values
@@ -50,7 +54,6 @@ def process_corpus(directory: str):
             if file.endswith('.xml'):
                 file_path = os.path.join(subdir, file)
                 xml_files.append(file_path)
-
 
     # Filter through the documents to get xml files with relevance judgements
     for file_path in xml_files:
@@ -92,10 +95,31 @@ def calculate_dt_matrix():
     return
 
 
+def extract_relevancy_data():
+    """
+    Finds the path for the Text Retrieval Conference clinical dataset relevancy and query lists and processes them.
+    :return:
+    """
+    relevancy_path = os.path.join(pathlib.Path(__file__).parent.resolve(), 'qrels2021.txt')
+    query_path = os.path.join(pathlib.Path(__file__).parent.resolve(), 'topics2021.xml')
+    process_query(relevancy_path, query_path)
+
+
 # Run this file as standalone to process the dataset.
 if __name__ == '__main__':
-    # Add full path of the directory (folder) containing the documents to the variable path.
-    directory_path = "/Users/muriel/Library/CloudStorage/OneDrive-Personal/Python_projects/MSc_DSAI/Information Retrieval/2021 Clinical Trials Track/Clinical_trials_2021"
+    create_all_indexes()
+
+    # # Add full path of the directory (folder) containing the documents to the variable path.
+    directory_path = ""
+    if not directory_path:
+        print('You have not added a directory path... This caused a FileNotFoundError')
+        raise FileNotFoundError
+
     process_corpus(directory_path)
+    #
+    # # Process relevancy
+    extract_relevancy_data()
+    #
+    # # calculate document-term frequency matrix
     for i in range(500):
         calculate_dt_matrix()

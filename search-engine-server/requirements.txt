@@ -58,7 +58,7 @@ quart-cors==0.6.0
 requests==2.28.2
 six==1.16.0
 soupsieve==2.4
-textanalyser @ file:///Users/muriel/Downloads/textanalyser-0.1.0-py3-none-any.whl
+./custom_modules/textanalyser-0.1.0-py3-none-any.whl
 toml==0.10.2
 urllib3==1.26.15
 Werkzeug==2.2.3
