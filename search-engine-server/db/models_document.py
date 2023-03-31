@@ -23,6 +23,8 @@ class Document:
 
     raw_text: str | None - all text in the xml document without tags
 
+    clinical_id: str | None - the clinical id given to the document by trec
+
     links_outgoing: int - number of links contained in the document (measure of authority)
 
     references: int - number of times the document has been referenced by other documents in the corpus
@@ -68,6 +70,7 @@ class Document:
         self.domain: str | None = None
         self.description: str | None = None
         self.raw_text: str | None = None
+        self.clinical_id: str | None = None
 
         # Document indexing / relevance measures
         self.links_outgoing: int = 0
@@ -102,6 +105,7 @@ class Document:
             "domain": self.domain,
             "description": self.description,
             "raw_text": self.raw_text,
+            "clinical_id": self.clinical_id,
 
             "links_outgoing": self.links_outgoing,
             "references": self.references,
