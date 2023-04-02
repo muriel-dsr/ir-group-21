@@ -1,6 +1,7 @@
 from quart import Quart, request, Response
 from quart_cors import route_cors
 from retrieval_model import retrieval_model
+from db import get_query_list_for_client
 import json
 
 # Create engine
@@ -25,6 +26,15 @@ async def data():
 
     # return response to the client side
     return json.dumps(results), 200, {"Access-Control-Allow-Origin": "*"}
+
+
+@app.route('/queries')
+@route_cors(allow_origin="*")
+async def get_queries_list():
+    queries_list = get_query_list_for_client()
+
+    # return response to the client side
+    return json.dumps(queries_list), 200, {"Access-Control-Allow-Origin": "*"}
 
 
 # Start the app when the code is executed
