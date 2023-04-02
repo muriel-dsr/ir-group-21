@@ -106,10 +106,9 @@ async def get_documents_for_client_with_client_id(ids: list | None = None):
     :return: list(documents)
     """
     if ids is not None and len(ids) > 0:
-        docs = documents.find({"client_id": {"$in": ids}}, {'title': 1, 'url': 1, 'description': 1})
+        docs = documents.find({"clinical_id": {"$in": ids}}, {'title': 1, 'url': 1, 'description': 1})
     else:
         docs = documents.find({}).limit(10)
-
     return [Document(doc).info_client() for doc in docs]
 
 
