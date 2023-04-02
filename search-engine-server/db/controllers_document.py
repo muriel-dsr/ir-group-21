@@ -4,6 +4,7 @@ from db.services_pymongo import documents
 from textanalyser import list_words
 import re
 from bson import ObjectId
+from pandas import DataFrame
 
 
 def get_soup_text(soup: BeautifulSoup, tag: str):
@@ -85,7 +86,11 @@ def get_documents_for_matrix(existing_docs: list, limit: int = 10):
     return documents.find({"_id": {"$nin": ids}}, {'term_matrix': 1}).limit(limit)
 
 
-async def get_documents_for_client(ids: list | None = None):
+async def get_documents_for_client_with_id(ids: list | None = None):
+    """
+    :param ids: int
+    :return: list(documents)
+    """
     if ids is not None and len(ids) > 0:
         _ids = [ObjectId(i) for i in ids]
         docs = documents.find({"_id": {"$in": _ids}}, {'title': 1, 'url': 1, 'description': 1})
@@ -93,3 +98,28 @@ async def get_documents_for_client(ids: list | None = None):
         docs = documents.find({}).limit(10)
 
     return [Document(doc).info_client() for doc in docs]
+
+
+async def get_documents_for_client_with_client_id(ids: list | None = None):
+    """
+    :param ids: int
+    :return: list(documents)
+    """
+    if ids is not None and len(ids) > 0:
+        docs = documents.find({"client_id": {"$in": ids}}, {'title': 1, 'url': 1, 'description': 1})
+    else:
+        docs = documents.find({}).limit(10)
+
+    return [Document(doc).info_client() for doc in docs]
+
+
+def get_documents_for_indexing():
+    """
+    Retrieve all documents from database and return the relevant properties for retrieval in a pandas dataframe.
+
+    :return: DataFrame
+    """
+    docs = documents.find({}, {"_id": 0, "clinical_id": 1, "raw_text": 1})
+    df = DataFrame(list(docs))
+    df = df.set_index("clinical_id")
+    return df
