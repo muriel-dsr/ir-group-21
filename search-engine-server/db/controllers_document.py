@@ -16,7 +16,8 @@ def get_soup_text(soup: BeautifulSoup, tag: str):
     :return: str | None
     """
     try:
-        text = soup.find(tag).get_text()
+        text = " ".join([words.get_text().strip().replace('(', ' ').replace(')', ' ').replace('/', ' ').replace("'", "")
+                         for words in soup.find_all(tag)])
         return text
     except AttributeError:
         return None
@@ -40,7 +41,7 @@ def find_domain(url: str):
 def process_clinical_trial(path: str):
     """
     Process an individual sample from the dataset and add it to the database. Returns an instance of the Document class.
-
+    data['term_frequency'] only selects texts from relevant tags to reduce words in the term frequency
     :param path: str: the path of the xml file
     :return: Document:
     """
@@ -60,7 +61,15 @@ def process_clinical_trial(path: str):
         data['description'] = get_soup_text(soup, 'brief_summary').replace('\r\n     ', '').strip()
     else:
         data['description'] = None
-    data['term_frequencies'] = list_words(soup.text)['all']
+    data['term_frequencies'] = list_words(get_soup_text(soup, ('id_info', 'brief_title', 'acronym', 'official_title',
+                                                               'sponsors', 'textblock', 'overall_status', 'start_date',
+                                                               'completion_date', 'primary_completion_date', 'phase',
+                                                               'study_type', 'study_design_info','primary_outcome',
+                                                               'secondary_outcome', 'other_outcome', 'enrollment',
+                                                               'condition', 'arm_group', 'intervention',
+                                                               'overall_official', 'location', 'location_countries',
+                                                               'keyword', 'condition_browse', 'intervention_browse',
+                                                               'clinical_results')))['all']
     data['raw_text'] = soup.text
     data['clinical_id'] = get_soup_text(soup, 'nct_id')
 
@@ -120,5 +129,5 @@ def get_documents_for_indexing():
     """
     docs = documents.find({}, {"_id": 0, "clinical_id": 1, "raw_text": 1})
     df = DataFrame(list(docs))
-    df = df.set_index("clinical_id")
+    df = df[['clinical_id', 'raw_text']]
     return df
