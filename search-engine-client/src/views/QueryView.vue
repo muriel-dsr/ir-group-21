@@ -1,6 +1,7 @@
 <template>
     <div class="query-view">
         <div class="test">
+          <clinical-query-dialog />
             <v-card width="500" flat>
                 <v-form @submit.prevent="sendQuery"
                         v-model="valid" class="searchForm" >
@@ -24,11 +25,13 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from "axios";
+import ClinicalQueryDialog from "@/components/ClinicalQueryDialog.vue";
 
 
 export default defineComponent({
     name: 'QueryView',
-    data: () => ({
+  components: { ClinicalQueryDialog },
+  data: () => ({
         valid: true,
         query: "",
         queries: []

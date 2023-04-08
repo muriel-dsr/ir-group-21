@@ -1,7 +1,10 @@
 <template>
   <div class="results">
-  <h1>Results</h1>
-  <h2>{{ query }}</h2>
+    <v-row justify="center" align="center" class="mt-4">
+      <custom-query :original-query="queryLimited" />
+      <p class="ml-2 mr-2">OR</p>
+      <clinical-query-dialog />
+    </v-row>
     <v-row>
       <v-col cols="11">
           <div v-for="result in results" :key="result._id">
@@ -19,16 +22,26 @@
   import { defineComponent } from 'vue';
   import axios from 'axios'
   import ResultCard from "@/components/ResultCard.vue";
+  import ClinicalQueryDialog from "@/components/ClinicalQueryDialog.vue";
+  import CustomQuery from "@/components/CustomQuery.vue";
 
   export default defineComponent({
     name: 'ResultsView',
-    components: { ResultCard },
+    components: {CustomQuery, ClinicalQueryDialog, ResultCard },
     data: () => ({
       query: "",
       results: [],
       queryTerms: [],
       iDFTotal: 0
     }),
+    computed:{
+      queryLimited(){
+        if(!this.query){
+          return ""
+        }
+        return this.query.length < 120 ? this.query : this.query.slice(0, 120) + '...'
+      }
+    },
     created() {
       this.query = `${this.$route.params.query}`
       return axios.get(`http://127.0.0.1:5000/data?${this.query}`).then(response => {

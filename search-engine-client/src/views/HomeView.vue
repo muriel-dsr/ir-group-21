@@ -1,40 +1,26 @@
 <template>
   <div class="home">
     <div class="test">
-      <v-card width="500" flat>
-        <v-form @submit.prevent="sendQuery"
-                v-model="valid" class="searchForm" >
-          <v-row align="center">
-            <v-text-field v-model="query"></v-text-field>
-            <v-btn type="submit"
-                   color="primary"
-                   variant="text"
-            :disabled="!query">Go</v-btn>
-          </v-row>
-        </v-form>
-      </v-card>
+      <custom-query />
+      <p class="ml-2 mr-2">OR</p>
+      <clinical-query-dialog />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import ClinicalQueryDialog from "@/components/ClinicalQueryDialog.vue";
+import CustomQuery from "@/components/CustomQuery.vue";
 
 
 export default defineComponent({
   name: 'HomeView',
+  components: {CustomQuery, ClinicalQueryDialog },
   data: () => ({
     valid: true,
     query: ""
   }),
-  methods: {
-    sendQuery(){
-      if(this.query){
-        this.$router.push({name: "results", params: {query: this.query}})
-        return
-      }
-    }
-  }
 });
 </script>
 <style>
