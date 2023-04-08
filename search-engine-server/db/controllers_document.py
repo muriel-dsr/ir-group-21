@@ -131,3 +131,16 @@ def get_documents_for_indexing():
     df = DataFrame(list(docs))
     df = df[['clinical_id', 'raw_text']]
     return df
+
+def get_documents_terms():
+
+    '''
+    Retrieves all documents from the database and return a flat list of all the terms. Used for stopword removal
+
+    :return: list
+    '''
+
+    docs = list(documents.find({}, {"_id": 0, "clinical_id": 1, "term_frequencies": 1}))
+    tokens = [item['term_frequencies'].keys() for item in docs]
+    tokens_list = [key for sublist in tokens for key in sublist]
+    return tokens_list
