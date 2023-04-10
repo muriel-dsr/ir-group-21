@@ -70,6 +70,16 @@ def process_clinical_trial(path: str):
                                                                'overall_official', 'location', 'location_countries',
                                                                'keyword', 'condition_browse', 'intervention_browse',
                                                                'clinical_results')))['all']
+
+    data['tf_text'] = get_soup_text(soup, ('id_info', 'brief_title', 'acronym', 'official_title',
+                                                               'sponsors', 'textblock', 'overall_status', 'start_date',
+                                                               'completion_date', 'primary_completion_date', 'phase',
+                                                               'study_type', 'study_design_info','primary_outcome',
+                                                               'secondary_outcome', 'other_outcome', 'enrollment',
+                                                               'condition', 'arm_group', 'intervention',
+                                                               'overall_official', 'location', 'location_countries',
+                                                               'keyword', 'condition_browse', 'intervention_browse',
+                                                               'clinical_results'))
     data['raw_text'] = soup.text
     data['clinical_id'] = get_soup_text(soup, 'nct_id')
 
