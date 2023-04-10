@@ -70,6 +70,7 @@ class Document:
         self.domain: str | None = None
         self.description: str | None = None
         self.raw_text: str | None = None
+        self.tf_text: str | None = None
         self.clinical_id: str | None = None
 
         # Document indexing / relevance measures
@@ -105,6 +106,7 @@ class Document:
             "domain": self.domain,
             "description": self.description,
             "raw_text": self.raw_text,
+            "tf_text": self.tf_text,
             "clinical_id": self.clinical_id,
 
             "links_outgoing": self.links_outgoing,
