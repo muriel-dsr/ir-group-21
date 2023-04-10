@@ -49,6 +49,12 @@
         // this.queryTerms = response.data[1]
         console.log(response.data)
       }).catch(err => console.error(err))
+    },
+    watch: {
+      '$route': function(to){
+        this.query = `${this.$route.params.query}`
+        this.$router.go(0)
+      }
     }
   });
 </script>
