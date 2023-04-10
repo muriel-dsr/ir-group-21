@@ -3,6 +3,7 @@ from quart_cors import route_cors
 from retrieval_model import retrieval_model
 from db import get_query_list_for_client
 import json
+import re
 
 # Create engine
 app = Quart(__name__)
@@ -20,6 +21,7 @@ def home_route():
 @route_cors(allow_origin="*")
 async def data():
     query_string = request.query_string.decode("utf-8")
+    query_string = re.sub(r'\W+', ' ', query_string)
 
     # code to process query and determine results
     results = list(await retrieval_model(query_string))
