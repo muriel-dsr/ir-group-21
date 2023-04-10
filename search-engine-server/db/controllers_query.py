@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from db.models_query import Query
-from db.services_pymongo import documents
+from db.services_pymongo import documents, queries
 import re
 
 
@@ -12,6 +12,13 @@ def get_queries_by_clinical_id(ids: list):
     :return: list
     """
     return list(documents.find({"clinical_id": {"$in": ids}}, {"_id": 1}))
+
+
+def get_query_list_for_client():
+    """
+    Returns a list of all queries in the database
+    """
+    return list(map(lambda x: x["content"], queries.find({}, {"_id": 0, "content": 1})))
 
 
 def relevance_parser(relevance_filepath: str):
