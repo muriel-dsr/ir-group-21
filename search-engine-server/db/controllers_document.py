@@ -70,6 +70,16 @@ def process_clinical_trial(path: str):
                                                                'overall_official', 'location', 'location_countries',
                                                                'keyword', 'condition_browse', 'intervention_browse',
                                                                'clinical_results')))['all']
+
+    data['tf_text'] = get_soup_text(soup, ('id_info', 'brief_title', 'acronym', 'official_title',
+                                                               'sponsors', 'textblock', 'overall_status', 'start_date',
+                                                               'completion_date', 'primary_completion_date', 'phase',
+                                                               'study_type', 'study_design_info','primary_outcome',
+                                                               'secondary_outcome', 'other_outcome', 'enrollment',
+                                                               'condition', 'arm_group', 'intervention',
+                                                               'overall_official', 'location', 'location_countries',
+                                                               'keyword', 'condition_browse', 'intervention_browse',
+                                                               'clinical_results'))
     data['raw_text'] = soup.text
     data['clinical_id'] = get_soup_text(soup, 'nct_id')
 
@@ -93,6 +103,20 @@ def get_documents_for_matrix(existing_docs: list, limit: int = 10):
     """
     ids = [ObjectId(i) for i in existing_docs]
     return documents.find({"_id": {"$nin": ids}}, {'term_matrix': 1}).limit(limit)
+
+
+def get_documents_for_stop_list(doc_ids: list):
+    """
+    Takes a list of document ids that already exist in the td_matrix and returns the relevant documents
+    of documents.
+
+    This function only returns documents not in the original list.
+
+    :param doc_ids: list
+    :return: documents
+    """
+    ids = [ObjectId(i) for i in doc_ids]
+    return documents.find({"_id": {"$in": ids}}, {"_id": 0, "clinical_id": 1, "term_frequencies": 1})
 
 
 async def get_documents_for_client_with_id(ids: list | None = None):
