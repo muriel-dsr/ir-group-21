@@ -6,6 +6,7 @@ import csv
 
 '''
 WARNING: When using a large number of documents, this script has a long runtime.
+This is due to the function scipy.sparse.csr_matrix.
 With n_docs = 500 it runs in ~6 minutes.
 With n_docs = 5000 it runs in ~1 hour.
 '''
@@ -14,7 +15,7 @@ With n_docs = 5000 it runs in ~1 hour.
 from db.services_pymongo import documents
 
 # Generate a random sample of n_docs documents from the database.
-n_docs = 100
+n_docs = 5000
 docs = random.sample(list(documents.find({}, {"_id": 0, "tf_text": 1})), n_docs)
 tf_text_list = [list(tf_text_dict.values())[0] for tf_text_dict in docs]
 
