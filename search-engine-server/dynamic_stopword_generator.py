@@ -5,19 +5,21 @@ from tqdm import tqdm
 import csv
 
 '''
-IMPORTANT: When using a large number of documents, this script has a long runtime.
-With 500 documents it runs in ~6 minutes.
-With 5000 documents it runs in ~1 hour.
+WARNING: When using a large number of documents, this script has a long runtime.
+This is due to the function scipy.sparse.csr_matrix.
+With n_docs = 500 it runs in ~6 minutes.
+With n_docs = 5000 it runs in ~1 hour.
 '''
 
 # LOAD DOCUMENTS
 from db.services_pymongo import documents
 
-# Generate a random sample of documents from the database.
-# docs_list, doc_lens and tokens_list are the derived objects from which the stopword list will be built.
-docs = random.sample(list(documents.find({}, {"_id": 0, "tf_text": 1})), 100)
+# Generate a random sample of n_docs documents from the database.
+n_docs = 5000
+docs = random.sample(list(documents.find({}, {"_id": 0, "tf_text": 1})), n_docs)
 tf_text_list = [list(tf_text_dict.values())[0] for tf_text_dict in docs]
 
+# docs_list, doc_lens and tokens_list are the derived objects from which the stopword list will be built.
 docs_list = list()
 for tf_text in tf_text_list:
     docs_list.append(tf_text.split())
