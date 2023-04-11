@@ -3,33 +3,46 @@ import numpy as np
 from db import get_clinical_td_matrix
 import os, sys
 from scipy.sparse import csr_matrix
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+from tqdm import tqdm
 
-td = get_clinical_td_matrix()  # gets data from clinicaltrials.gov.pkl
-td_matrix = td.matrix  # the document matrix
-print(f'Shape = {td_matrix.shape}')
+# td = get_clinical_td_matrix()  # gets data from clinicaltrials.gov.pkl
+# td_matrix = td.matrix  # the document matrix
+# td_matrix = td_matrix.fillna(0)
+# td_matrix = td_matrix.astype(int)
+# print(f'Shape = {td_matrix.shape}')
+#
+#
+# '''try 100 documents first'''
+# matrix_100 = td_matrix.iloc[:100, :]
+# matrix_100 = matrix_100.fillna(0)
+# matrix_100 = matrix_100.astype(int)
+# print("shape for first 100 docs = ", matrix_100.shape)
 
-
-'''try 100 documents first'''
-matrix_100 = td_matrix.iloc[:100, :100]
-matrix_100 = matrix_100.fillna(0)
-matrix_100 = matrix_100.astype(int)
-# print(matrix_100.info())
-
+# LOAD DOCUMENT TEXT
 from db.services_pymongo import documents
 
-# returns all the documents from the database. specify num of docs in limit()
-docs = list(documents.find({}, {"_id": 0, "clinical_id": 1, "term_frequencies": 1}).limit(100))
+# returns all the documents from the database. specify num of docs in limit() (using .limit(100))
+docs = list(documents.find({}, {"_id": 0, "tf_text": 1}).limit(100))
+tf_text_list = [list(tf_text_dict.values())[0] for tf_text_dict in docs]
+
+docs_list = list()
+for tf_text in tf_text_list:
+    docs_list.append(tf_text.split())
+
+# Class objects
+doc_lens = [len(doc) for doc in docs_list]
+# tokens = [item['term_frequencies'].keys() for item in docs]
+tokens_list = [token for doc in docs_list for token in doc]  # returns a list of all the terms in the documents
 
 '''ENTROPY CODES TESTING'''
-
 
 #  First step of conditional entropy calculation
 def normalise(row):
     return row / row.sum()
 
 
-df_term_distributions = matrix_100.apply(normalise, axis=0)
+# df_term_distributions = matrix_100.apply(normalise, axis=0)
 # print(df_term_distributions)
 
 
@@ -49,16 +62,8 @@ def conditional_entropy(df):
     return df.apply(normalise, axis=0).apply(conditional_entropy_summand, axis=0).sum(axis=0)
 
 
-df_conditional_entropy = conditional_entropy(matrix_100)
+# df_conditional_entropy = conditional_entropy(matrix_100)
 # print(df_conditional_entropy)
-
-
-# Class objects
-doc_lens = matrix_100.sum(axis=1)
-tokens = [item['term_frequencies'].keys() for item in docs]
-tokens_list = [key for sublist in tokens for key in sublist]  # returns a list of all the terms in the documents
-# print(tokens_list)
-
 
 def shuffle_terms(doc_lens, tokens_list):
     # shuffles tokens over the documents
@@ -75,9 +80,14 @@ def shuffle_terms(doc_lens, tokens_list):
 
 
 null_docs = shuffle_terms(doc_lens, tokens_list)
-# print(null_docs)
+# print(len(null_docs[0])==doc_lens[0])
+# print(len(null_docs))
+# print(tokens_list)
+# vocab_set = set(tokens_list)
+# print(vocab_set)
 
 # Create a document-term matrix for the null document set
+
 def null_csr(list_docs):
     '''
     Makes a sparse term-document matrix from a list of documents.
@@ -100,17 +110,18 @@ def null_csr(list_docs):
     rows = []
     cols = []
     data = []
-
-    for i_doc, doc in enumerate(list_docs):
-        data += [1] * len(doc)
-        cols += [i_doc] * len(doc)
-        rows += [dict_term_id[h] for h in doc]
+    # print(len(list_docs))
+    for i_doc in tqdm(range(D)):
+        doc = list_docs[i_doc]
+        data = data + [1] * len(doc)
+        cols = cols + [i_doc] * len(doc)
+        rows = rows + [dict_term_id[h] for h in doc]
 
     term_doc_matrix = csr_matrix((data, (rows, cols)), shape=(V, D), dtype=np.int64, copy=False)
     return term_doc_matrix, dict_term_id
-#
-term_doc_matrix, dict_term_id = null_csr(null_docs)
 
+
+term_doc_matrix, dict_term_id = null_csr(docs_list)
 
 def conditional_entropy_csr(sparse_matrix):
     '''
@@ -123,7 +134,7 @@ def conditional_entropy_csr(sparse_matrix):
 
     # Frequency of each term in the collection
     term_freq = np.array(sparse_matrix.sum(axis=1).transpose())[0]
-
+    # print(np.where(term_freq==0))
     # Intermediate calculation
     n = sparse_matrix.data
     summand = n * np.log2(n)
@@ -147,14 +158,14 @@ def conditional_entropy_csr(sparse_matrix):
     entropy_matrix = csr_matrix((data_H, (row_H, col_H)), shape=sparse_matrix.shape)
 
     # Finish conditional entropy calculation
-    H_null = -np.array(entropy_matrix.sum(axis=1).transpose())[0] / term_freq + np.log2(term_freq)
+    H_vector = -np.array(entropy_matrix.sum(axis=1).transpose())[0] / term_freq + np.log2(term_freq)
 
-    return H_null
+    return H_vector
 
-H_null =conditional_entropy_csr(term_doc_matrix)
-# print(H_null)
 
-# Shuffle (1000 times) and average the entropies
+H_vector = conditional_entropy_csr(term_doc_matrix)
+
+# Shuffle n times and average the entropies
 
 def null_model_generator(doc_lens, tokens_list):
     # Shuffle the tokens across the documents
@@ -164,26 +175,41 @@ def null_model_generator(doc_lens, tokens_list):
     null_matrix, dict_term_id = null_csr(shuffle_terms(doc_lens,tokens_list))
     return conditional_entropy_csr(null_matrix)
 
+
 def null_model_iterator(n, doc_lens, tokens_list):
-    # Iterates the null_model_generator n times and takes the mean of the results
+    # Iterates the null_model_generator n times and takes the mean of the results
     null_sum = null_model_generator(doc_lens,tokens_list)
     for i in range(n-1):
         null_sum += null_model_generator(doc_lens,tokens_list)
     return null_sum/n
 
-null_mean = null_model_iterator(100, doc_lens, tokens_list)
-print(null_mean)
-#
-# info_content = null_mean - df_conditional_entropy
-# print(info_content)
 
+H_null_mean = null_model_iterator(10, doc_lens, tokens_list)
+
+info_content = H_null_mean - H_vector
+
+# Select a threshold. All terms with information content below the threshold are put into the stopword list.
+
+def get_stopword_list(threshold, info_content, dict_term_id):
+    # Returns inferred stopword list
+
+    inferred_stopword_indices = np.where(np.abs(info_content)<threshold)[0]
+
+    inferred_stopword_list = list()
+
+    for key, value in dict_term_id.items():
+        if value in inferred_stopword_indices:
+            inferred_stopword_list.append(key)
+
+    return inferred_stopword_list
+
+
+stopword_list = get_stopword_list(0.1,info_content, dict_term_id)
+print(len(stopword_list))
+print(len(stopword_list)/len(dict_term_id))
+# VISUALISATION
 # Distribution of information content of terms
-# plt.hist(info_content)
+# plt.hist(info_content, bins=30)
 # plt.xlabel("Information Content")
 # plt.ylabel("Frequency")
 # plt.show()
-
-# Select a threshold. All terms with information content below the threshold are put into the stopword list.
-# threshold = 0.1
-# inferred_stopword_list = list(info_content.loc[np.abs(info_content)<threshold].index)
-# print(inferred_stopword_list)
