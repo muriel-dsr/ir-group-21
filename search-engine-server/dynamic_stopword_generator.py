@@ -4,6 +4,12 @@ from scipy.sparse import csr_matrix
 from tqdm import tqdm
 import csv
 
+'''
+IMPORTANT: When using a large number of documents, this script has a long runtime.
+With 500 documents it runs in ~6 minutes.
+With 5000 documents it runs in ~1 hour.
+'''
+
 # LOAD DOCUMENTS
 from db.services_pymongo import documents
 
