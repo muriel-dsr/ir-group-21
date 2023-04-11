@@ -20,6 +20,3 @@ def standard_stopword_list():
     combined_stopword = set(nltk_stopword).union(set(sklearn_stopword))
 
     return combined_stopword
-
-custom_stopword = custom_stopword_list()
-print(type(custom_stopword))
