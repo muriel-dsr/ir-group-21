@@ -7,6 +7,22 @@ from bson import ObjectId
 from pandas import DataFrame
 
 
+def get_url_text(soup: BeautifulSoup, tag: str):
+    """
+    Takes an instance of BeautifulSoup and checks whether a tag is present. Returns the tag text or None.
+
+    :param soup: BeautifulSoup
+    :param tag: str
+    :return: str | None
+    """
+    try:
+        text = soup.find(tag).get_text()
+
+        return text
+    except AttributeError:
+        return None
+
+
 def get_soup_text(soup: BeautifulSoup, tag: str):
     """
     Takes an instance of BeautifulSoup and checks whether a tag is present. Returns the tag text or None.
@@ -55,7 +71,7 @@ def process_clinical_trial(path: str):
     soup = BeautifulSoup(file, 'lxml')
 
     data['title'] = get_soup_text(soup, 'brief_title')
-    data['url'] = get_soup_text(soup, 'url')
+    data['url'] = get_url_text(soup, 'url')
     data['domain'] = find_domain(data['url'])
     if get_soup_text(soup, 'brief_summary'):
         data['description'] = get_soup_text(soup, 'brief_summary').replace('\r\n     ', '').strip()
