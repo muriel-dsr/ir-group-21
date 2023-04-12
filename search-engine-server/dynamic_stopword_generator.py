@@ -1,8 +1,9 @@
 import numpy as np
 import random
+import csv
+from db.services_pymongo import documents
 from scipy.sparse import csr_matrix
 from tqdm import tqdm
-import csv
 
 '''
 WARNING: When using a large number of documents, this script has a long runtime.
@@ -11,8 +12,6 @@ With n_docs = 500 it runs in ~6 minutes.
 With n_docs = 5000 it runs in ~1 hour.
 '''
 
-# LOAD DOCUMENTS
-from db.services_pymongo import documents
 
 # Generate a random sample of n_docs documents from the database.
 n_docs = 5000
