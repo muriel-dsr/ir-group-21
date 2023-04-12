@@ -7,6 +7,7 @@ This project is in development, so should not be used in a production environmen
 NodeJS
 Python 3.10
 MongoDB Community Server 
+Java
 Local version of TREC clinical dataset 2021
 
 ## Instalation steps and instructions for processing data and starting "server" side of the system.   
