@@ -3,17 +3,16 @@ import os
 from db import get_documents_for_indexing, get_documents_for_client_with_client_id
 from stopwords import standard_stopword_list, custom_stopword_list
 
-# First we need to add pip install python-terrier to the requirements.txt
 
+''' Indexing and evaluation of the search engine model '''
+
+#  Initialise PyTerrier
 pt.init()
 
-
-# First we create the index
 
 def indexing_custom():
     """
     Creates the index using the dynamic stopword list.
-    Currently using standard stopword list for testing purposes
     """
 
     custom_stopword = custom_stopword_list()
@@ -80,10 +79,13 @@ async def retrieval_model(query: str):
     return await get_documents_for_client_with_client_id(results)
 
 
-
-# Now we get the relevancy files and the topics
-
 def evaluate():
+    """
+    Compare the results of using standard and custom stopword list
+
+    :return: a table of evaluation metric results. The first row(0) is the values for standard stopwords
+    """
+
     dataset = pt.get_dataset("irds:clinicaltrials/2021/trec-ct-2021")
     topics = dataset.get_topics()  # we get the topics in a format easy to use with the pyterrier evaluator framework
     qrels = dataset.get_qrels()  # we do the same with the relevancy files
@@ -97,5 +99,8 @@ def evaluate():
 
     experiment = pt.Experiment([bm25_custom, bm25_control], topics, qrels, ['map', 'ndcg', 'P_5', 'recall_5'])
     experiment['sum'] = experiment['P_5'] + experiment['recall_5']
+
+    stopword_list = ['standard', 'custom']
+    experiment.insert(0, 'stopword_list', stopword_list)
 
     return experiment
