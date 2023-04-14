@@ -1,6 +1,8 @@
-from retrieval_model import evaluate
+from retrieval_custom_preprocess import evaluate
 
 ''' Shows a table of the evaluation results '''
 
-evaluation_df = evaluate()
-print(evaluation_df)
+experiment, model_eval = evaluate()
+
+print(f'\nStopword list comparison:\n\n{experiment}')
+print(f'Retrieval model comparison:\n\n{model_eval}')

@@ -1,8 +1,8 @@
+import pandas as pd
 import pyterrier as pt
 import os
 from db import get_documents_for_indexing, get_documents_for_client_with_client_id
 from stopwords import standard_stopword_list, custom_stopword_list
-
 
 ''' Indexing and evaluation of the search engine model '''
 
@@ -95,12 +95,24 @@ def evaluate():
     bm25_control = pt.BatchRetrieve(control_index, wmodel="BM25",
                                     num_results=1000)  # now we create a model that we will use as control
 
-    # Here we create a pandas df that will show us the different evaluation metrics on the two models
+    tf_idf_custom = pt.BatchRetrieve(custom_index, wmodel="TF_IDF", num_results=1000)
 
-    experiment = pt.Experiment([bm25_custom, bm25_control], topics, qrels, ['map', 'ndcg', 'P_5', 'recall_5'])
-    experiment['sum'] = experiment['P_5'] + experiment['recall_5']
+    # Dataframe to show us the different evaluation metrics on the standard and custom stopword list
 
+    experiment = pt.Experiment([bm25_custom, bm25_control], topics, qrels,
+                               ['map', 'P_5', 'recall_5', 'num_rel', 'num_rel_ret'])
+
+    sum_p_r = experiment['P_5'] + experiment['recall_5']
     stopword_list = ['standard', 'custom']
-    experiment.insert(0, 'stopword_list', stopword_list)
 
-    return experiment
+    experiment.insert(0, 'stopword_list', stopword_list)
+    experiment.insert(5, 'P+R', sum_p_r)
+
+    # Dataframe of the evaluation metrics of BM25 and TF-IDF
+
+    model_eval = pt.Experiment([bm25_custom, tf_idf_custom], topics, qrels,
+                               ['ndcg', 'Rprec', 'num_rel', 'num_rel_ret'])
+
+    pd.set_option('display.max_columns', None)
+
+    return experiment, model_eval
