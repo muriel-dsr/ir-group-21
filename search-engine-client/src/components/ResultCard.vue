@@ -21,7 +21,6 @@
     }),
     methods: {
       async goToURL(){
-        await axios.post(`http://127.0.0.1:5000/increase_clicks`, {id: this.id}).catch(err => console.error(err))
         if (this.url){
           window.location.href = this.url
         }
