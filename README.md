@@ -5,9 +5,13 @@ This project is in development, so should not be used in a production environmen
 
 ## Pre-requisites 
 NodeJS
+<br>
 Python 3.10
+<br>
 MongoDB Community Server 
+<br>
 Java
+<br>
 Local version of TREC clinical dataset 2021
 
 ## Instalation steps and instructions for processing data and starting "server" side of the system.   
