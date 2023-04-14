@@ -6,6 +6,8 @@ from scipy.sparse import csr_matrix
 from tqdm import tqdm
 
 '''
+Implementation of the dynamic stopwords list. A csv file will be generated
+
 WARNING: When using a large number of documents, this script has a long runtime.
 This is due to the function scipy.sparse.csr_matrix.
 With n_docs = 500 it runs in ~6 minutes.

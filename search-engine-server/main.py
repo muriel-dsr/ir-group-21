@@ -5,6 +5,8 @@ from db import get_query_list_for_client
 import json
 import re
 
+''' Run this script to initialise the server '''
+
 # Create engine
 app = Quart(__name__)
 

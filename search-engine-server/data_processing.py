@@ -6,9 +6,7 @@ import os
 import pandas as pd
 import pathlib
 
-
-'''Document ids with relevant judgment'''
-
+''' Processes the documents and loads the dataset to MongoDB '''
 
 def judgement():
     """
