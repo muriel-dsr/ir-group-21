@@ -1,6 +1,6 @@
 from quart import Quart, request, Response
 from quart_cors import route_cors
-from retrieval_model import retrieval_model
+from retrieval_custom_preprocess import retrieval_model_custom
 from db import get_query_list_for_client
 import json
 import re
@@ -26,7 +26,7 @@ async def data():
     query_string = re.sub(r'\W+', ' ', query_string)
 
     # code to process query and determine results
-    results = list(await retrieval_model(query_string))
+    results = list(await retrieval_model_custom(query_string))
 
     # return response to the client side
     return json.dumps(results), 200, {"Access-Control-Allow-Origin": "*"}
