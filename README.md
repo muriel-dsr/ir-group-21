@@ -3,6 +3,9 @@ A collaboration project for DSAI ECS736p Assignment 3.
 
 This project is in development, so should not be used in a production environment!
 
+the aim of our project was to create a functional search engine specifically focused on the use of dynamic stop-word lists and the impact they can have on the retrieval results.
+The search engine assess the viability and performance of a dynamic stopword list based on the corpus, and compared it with the existing standard stopword list (NLTK+ scikit list) using BM25 model.
+
 ## Pre-requisites 
 NodeJS
 <br>
